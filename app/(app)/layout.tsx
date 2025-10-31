@@ -7,6 +7,12 @@ export default async function AppLayout({
 }) {
   await getUserOrRedirect()
 
-  return <div className="min-h-screen bg-background">{children}</div>
+  return (
+    <div className="min-h-screen gradient-app text-foreground">
+      <div className="mx-auto max-w-[1400px] px-6 py-10">
+        {children}
+      </div>
+    </div>
+  )
 }
 

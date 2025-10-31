@@ -188,9 +188,9 @@ export function CardModal({ card, boardId, open, onOpenChange }: CardModalProps)
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="sm:max-w-2xl overflow-y-auto">
+      <SheetContent className="sm:max-w-2xl glass-card border-none bg-black/60 text-white">
         <SheetHeader>
-          <SheetTitle>Edit Card</SheetTitle>
+          <SheetTitle className="text-transparent bg-clip-text gradient-text">Edit Card</SheetTitle>
         </SheetHeader>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 mt-6">
@@ -202,6 +202,7 @@ export function CardModal({ card, boardId, open, onOpenChange }: CardModalProps)
               id="title"
               {...register('title')}
               disabled={updateMutation.isPending}
+              className="bg-white/10 border-white/15 text-white"
             />
             {errors.title && (
               <p className="text-sm text-destructive">{errors.title.message}</p>
@@ -218,6 +219,7 @@ export function CardModal({ card, boardId, open, onOpenChange }: CardModalProps)
               {...register('description')}
               rows={4}
               disabled={updateMutation.isPending}
+              className="bg-white/10 border-white/15 text-white"
             />
           </div>
 
@@ -231,6 +233,7 @@ export function CardModal({ card, boardId, open, onOpenChange }: CardModalProps)
               {...register('labels')}
               placeholder="Frontend, Backend, Bug"
               disabled={updateMutation.isPending}
+              className="bg-white/10 border-white/15 text-white"
             />
           </div>
 
@@ -244,6 +247,7 @@ export function CardModal({ card, boardId, open, onOpenChange }: CardModalProps)
               type="date"
               {...register('due_date')}
               disabled={updateMutation.isPending}
+              className="bg-white/10 border-white/15 text-white"
             />
           </div>
 
@@ -257,6 +261,7 @@ export function CardModal({ card, boardId, open, onOpenChange }: CardModalProps)
               {...register('assignees')}
               placeholder="user-id-1, user-id-2"
               disabled={updateMutation.isPending}
+              className="bg-white/10 border-white/15 text-white"
             />
             <p className="text-xs text-muted-foreground">
               Untuk MVP, masukkan user IDs. Di production bisa diganti dengan select dropdown members.
@@ -264,7 +269,7 @@ export function CardModal({ card, boardId, open, onOpenChange }: CardModalProps)
           </div>
 
           <div className="flex gap-2">
-            <Button type="submit" disabled={updateMutation.isPending} className="flex-1">
+            <Button type="submit" disabled={updateMutation.isPending} className="flex-1 btn-gradient">
               {updateMutation.isPending ? 'Menyimpan...' : 'Simpan Perubahan'}
             </Button>
             <Button
@@ -281,7 +286,7 @@ export function CardModal({ card, boardId, open, onOpenChange }: CardModalProps)
 
         {/* Comments Section */}
         <div className="mt-8 space-y-4">
-          <h3 className="text-lg font-semibold">Comments</h3>
+          <h3 className="text-lg font-semibold text-transparent bg-clip-text gradient-text">Comments</h3>
 
           <form onSubmit={handleAddComment} className="space-y-2">
             <Textarea
@@ -290,10 +295,12 @@ export function CardModal({ card, boardId, open, onOpenChange }: CardModalProps)
               placeholder="Tulis comment..."
               rows={3}
               disabled={commentMutation.isPending}
+              className="bg-white/10 border-white/15 text-white"
             />
             <Button
               type="submit"
               size="sm"
+              className="btn-gradient"
               disabled={commentMutation.isPending || !commentBody.trim()}
             >
               {commentMutation.isPending ? 'Menambahkan...' : 'Tambah Comment'}
@@ -305,7 +312,7 @@ export function CardModal({ card, boardId, open, onOpenChange }: CardModalProps)
               comments.map((comment) => (
                 <div
                   key={comment.id}
-                  className="border rounded-lg p-3 space-y-1"
+                  className="glass-card border-none rounded-lg p-3 space-y-1"
                 >
                   <div className="flex items-center gap-2 text-xs text-muted-foreground">
                     <User className="h-3 w-3" />

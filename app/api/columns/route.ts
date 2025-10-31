@@ -49,11 +49,12 @@ export async function POST(request: NextRequest) {
       .limit(1)
       .single()
 
-    const newOrder = maxOrderColumn ? maxOrderColumn.order + 100 : 100
+    const newOrder = maxOrderColumn ? (maxOrderColumn as any).order + 100 : 100
 
     // Create column
     const { data: column, error } = await supabase
       .from('columns')
+      // @ts-ignore - Supabase type inference issue
       .insert({
         board_id: validated.boardId,
         title: validated.title,

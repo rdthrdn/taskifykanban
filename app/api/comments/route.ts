@@ -54,6 +54,7 @@ export async function POST(request: NextRequest) {
     // Create comment
     const { data: comment, error } = await supabase
       .from('comments')
+      // @ts-ignore - Supabase type inference issue
       .insert({
         card_id: validated.cardId,
         author_id: user.id,

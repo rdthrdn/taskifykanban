@@ -68,11 +68,12 @@ export async function POST(request: NextRequest) {
       .limit(1)
       .single()
 
-    const newOrder = maxOrderCard ? maxOrderCard.order + 100 : 100
+    const newOrder = maxOrderCard ? (maxOrderCard as any).order + 100 : 100
 
     // Create card
     const { data: card, error } = await supabase
       .from('cards')
+      // @ts-ignore - Supabase type inference issue
       .insert({
         column_id: validated.columnId,
         title: validated.title,
@@ -158,6 +159,7 @@ export async function PATCH(request: NextRequest) {
 
     const { data: updatedCard, error } = await supabase
       .from('cards')
+      // @ts-ignore - Supabase type inference issue
       .update(updates)
       .eq('id', validated.id)
       .select()

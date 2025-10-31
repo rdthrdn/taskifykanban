@@ -129,7 +129,7 @@ export function Column({ column, cards, boardId, onCardClick }: ColumnProps) {
 
   return (
     <>
-      <Card className="flex flex-col min-w-[320px] max-w-[320px] h-fit max-h-[calc(100vh-200px)]">
+      <Card className="glass-card flex flex-col min-w-[320px] max-w-[320px] h-fit max-h-[calc(100vh-220px)] border-none">
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
             {isEditingTitle ? (
@@ -173,7 +173,9 @@ export function Column({ column, cards, boardId, onCardClick }: ColumnProps) {
             ) : (
               <>
                 <div className="flex items-center gap-2 flex-1 group">
-                  <h3 className="font-semibold">{column.title}</h3>
+                  <h3 className="font-semibold text-transparent bg-clip-text gradient-text">
+                    {column.title}
+                  </h3>
                   <Button
                     size="icon"
                     variant="ghost"
@@ -184,8 +186,10 @@ export function Column({ column, cards, boardId, onCardClick }: ColumnProps) {
                     <Edit2 className="h-3 w-3" />
                   </Button>
                 </div>
-                <div className="flex items-center gap-1">
-                  <span className="text-sm text-muted-foreground">{cards.length}</span>
+                <div className="flex items-center gap-1 text-xs text-white/60">
+                  <span className="px-2 py-1 rounded-full bg-white/10 border border-white/20">
+                    {cards.length} cards
+                  </span>
                   <Button
                     size="icon"
                     variant="ghost"
@@ -200,7 +204,7 @@ export function Column({ column, cards, boardId, onCardClick }: ColumnProps) {
             )}
           </div>
         </CardHeader>
-      <CardContent className="flex-1 overflow-y-auto space-y-2" ref={setNodeRef}>
+        <CardContent className="flex-1 overflow-y-auto space-y-2" ref={setNodeRef}>
         <SortableContext items={cardIds} strategy={verticalListSortingStrategy}>
           {cards.map((card) => (
             <CardItem key={card.id} card={card} onClick={() => onCardClick(card)} />
@@ -220,6 +224,7 @@ export function Column({ column, cards, boardId, onCardClick }: ColumnProps) {
               <Button
                 type="submit"
                 size="sm"
+                className="btn-gradient"
                 disabled={createMutation.isPending}
               >
                 Tambah
@@ -241,7 +246,7 @@ export function Column({ column, cards, boardId, onCardClick }: ColumnProps) {
         ) : (
           <Button
             variant="ghost"
-            className="w-full justify-start"
+            className="w-full justify-start text-white"
             onClick={() => setIsAddingCard(true)}
           >
             <Plus className="mr-2 h-4 w-4" />

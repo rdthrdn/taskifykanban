@@ -60,6 +60,7 @@ export async function POST(request: NextRequest) {
 
     const { data: board, error } = await supabase
       .from('boards')
+      // @ts-ignore - Supabase type inference issue
       .insert({
         title: validated.title,
         owner_id: user.id,

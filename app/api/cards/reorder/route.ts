@@ -45,6 +45,7 @@ export async function POST(request: NextRequest) {
     // Update card dengan column_id baru dan order baru
     const { data: card, error } = await supabase
       .from('cards')
+      // @ts-ignore - Supabase type inference issue
       .update({
         column_id: validated.toColumnId,
         order: validated.newOrder,

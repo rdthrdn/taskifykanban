@@ -56,6 +56,7 @@ export async function PATCH(
     // Update column
     const { data: updatedColumn, error } = await supabase
       .from('columns')
+      // @ts-ignore - Supabase type inference issue
       .update({ title: validated.title })
       .eq('id', columnId)
       .select()

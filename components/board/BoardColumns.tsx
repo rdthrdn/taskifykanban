@@ -201,8 +201,8 @@ export function BoardColumns({
   return (
     <>
       {/* Search & Filter Bar */}
-      <div className="px-6 py-4 border-b bg-muted/30">
-        <div className="flex flex-col gap-3">
+      <div className="mt-6 mb-6 space-y-3 px-1">
+        <div className="flex gap-2 flex-wrap">
           <div className="flex gap-2">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -224,48 +224,48 @@ export function BoardColumns({
               )}
             </div>
             {allLabels.length > 0 && (
-              <Button variant="outline" size="icon">
+              <Button variant="ghost" size="icon" className="h-10 w-10 flex items-center justify-center bg-white/10">
                 <Filter className="h-4 w-4" />
               </Button>
             )}
           </div>
-
-          {/* Label Filters */}
-          {allLabels.length > 0 && (
-            <div className="flex flex-wrap gap-2">
-              {allLabels.map((label) => (
-                <Badge
-                  key={label}
-                  variant={selectedLabels.includes(label) ? 'default' : 'outline'}
-                  className="cursor-pointer"
-                  onClick={() => toggleLabel(label)}
-                >
-                  {label}
-                  {selectedLabels.includes(label) && (
-                    <X className="ml-1 h-3 w-3" />
-                  )}
-                </Badge>
-              ))}
-              {selectedLabels.length > 0 && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setSelectedLabels([])}
-                  className="h-6"
-                >
-                  Clear filters
-                </Button>
-              )}
-            </div>
-          )}
-
-          {/* Results count */}
-          {(searchQuery || selectedLabels.length > 0) && (
-            <p className="text-xs text-muted-foreground">
-              Menampilkan {filteredCards.length} dari {cards.length} cards
-            </p>
-          )}
         </div>
+
+        {/* Label Filters */}
+        {allLabels.length > 0 && (
+          <div className="flex flex-wrap gap-2">
+            {allLabels.map((label) => (
+              <Badge
+                key={label}
+                variant={selectedLabels.includes(label) ? 'default' : 'outline'}
+                className={`cursor-pointer ${selectedLabels.includes(label) ? 'bg-white/15 border-white/30' : 'bg-white/5 border-white/15 text-white/70'}`}
+                onClick={() => toggleLabel(label)}
+              >
+                {label}
+                {selectedLabels.includes(label) && (
+                  <X className="ml-1 h-3 w-3" />
+                )}
+              </Badge>
+            ))}
+            {selectedLabels.length > 0 && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setSelectedLabels([])}
+                className="h-6 text-white/70"
+              >
+                Clear filters
+              </Button>
+            )}
+          </div>
+        )}
+
+        {/* Results count */}
+        {(searchQuery || selectedLabels.length > 0) && (
+          <p className="text-xs text-white/60">
+            Menampilkan {filteredCards.length} dari {cards.length} cards
+          </p>
+        )}
       </div>
 
       <DndProvider
@@ -273,7 +273,7 @@ export function BoardColumns({
         onDragEnd={handleDragEnd}
         overlay={activeCard ? <DragOverlayCard card={activeCard} /> : null}
       >
-        <div className="flex gap-4 overflow-x-auto p-6">
+        <div className="flex gap-6 overflow-x-auto pb-6">
           {columns.map((column) => {
             const columnCards = filteredCards
               .filter((c) => c.column_id === column.id)
@@ -290,7 +290,7 @@ export function BoardColumns({
           })}
 
         {/* Add Column */}
-        <Card className="min-w-[320px] max-w-[320px] p-4">
+        <Card className="glass-card min-w-[320px] max-w-[320px] p-4 border-none">
           {isAddingColumn ? (
             <form onSubmit={handleAddColumn} className="space-y-2">
               <Input
@@ -304,6 +304,7 @@ export function BoardColumns({
                 <Button
                   type="submit"
                   size="sm"
+                  className="btn-gradient"
                   disabled={createColumnMutation.isPending}
                 >
                   Tambah
@@ -323,14 +324,16 @@ export function BoardColumns({
               </div>
             </form>
           ) : (
-            <Button
-              variant="ghost"
-              className="w-full justify-start"
-              onClick={() => setIsAddingColumn(true)}
-            >
-              <Plus className="mr-2 h-4 w-4" />
-              Tambah Column
-            </Button>
+            <div className="h-full flex items-center justify-center">
+              <Button
+                variant="ghost"
+                className="w-full justify-start text-white"
+                onClick={() => setIsAddingColumn(true)}
+              >
+                <Plus className="mr-2 h-4 w-4" />
+                Tambah Column
+              </Button>
+            </div>
           )}
         </Card>
         </div>

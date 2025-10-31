@@ -47,6 +47,7 @@ export async function POST(request: NextRequest) {
 
     // Update setiap column dengan order baru
     const updates = validated.ordered.map(({ id, order }) =>
+      // @ts-ignore - Supabase type inference issue
       supabase.from('columns').update({ order }).eq('id', id)
     )
 

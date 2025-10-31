@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase.server'
+import type { Column, Card } from '@/lib/types'
+import type { Database } from '@/lib/database.types'
 import { z } from 'zod'
 
 const updateBoardSchema = z.object({
@@ -51,8 +53,9 @@ export async function GET(
     if (columnsError) throw columnsError
 
     // Get all cards untuk board ini
-    const columnIds = (columns || []).map((c) => c.id)
-    let cards: any[] = []
+    const typedColumns = (columns || []) as Column[]
+    const columnIds = typedColumns.map((c) => c.id)
+    let cards: Card[] = []
 
     if (columnIds.length > 0) {
       const { data: cardsData, error: cardsError } = await supabase
@@ -62,7 +65,7 @@ export async function GET(
         .order('order', { ascending: true })
 
       if (cardsError) throw cardsError
-      cards = cardsData || []
+      cards = (cardsData || []) as Card[]
     }
 
     return NextResponse.json({
@@ -119,6 +122,7 @@ export async function PATCH(
     // Update board
     const { data: updatedBoard, error } = await supabase
       .from('boards')
+      // @ts-ignore - Supabase type inference issue
       .update({ title: validated.title })
       .eq('id', boardId)
       .select()

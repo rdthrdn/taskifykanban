@@ -85,53 +85,56 @@ export function BoardHeader({ board }: BoardHeaderProps) {
   const isOwner = currentUser?.id === board.owner_id
 
   return (
-    <div className="sticky top-0 z-10 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container mx-auto px-6 py-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => router.push('/boards')}
-              aria-label="Kembali ke boards"
-            >
-              <ArrowLeft className="h-4 w-4" />
-            </Button>
-            <h1 className="text-2xl font-bold">{board.title}</h1>
+    <div className="sticky top-6 z-20">
+      <div className="glass-card rounded-3xl px-5 py-5 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+        <div className="flex items-center gap-4">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="rounded-full bg-white/5 hover:bg-white/10"
+            onClick={() => router.push('/boards')}
+            aria-label="Kembali ke boards"
+          >
+            <ArrowLeft className="h-4 w-4" />
+          </Button>
+          <div>
+            <h1 className="text-2xl font-semibold text-transparent bg-clip-text gradient-text drop-shadow-[0_0_18px_rgba(237,158,89,0.35)]">
+              {board.title}
+            </h1>
+            <p className="text-xs text-white/60">Board Kanban realtime • {board.members.length} anggota</p>
           </div>
-          
-          <div className="flex items-center gap-2">
-            <Button onClick={() => setIsMembersOpen(true)} variant="ghost" size="sm">
-              <Users className="mr-2 h-4 w-4" />
-              {board.members.length} Member
-            </Button>
-            <Button onClick={() => setIsInviteOpen(true)} variant="outline" size="sm">
-              <UserPlus className="mr-2 h-4 w-4" />
-              Invite
-            </Button>
-            
-            {/* Settings Menu - Only for Owner */}
-            {isOwner && (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon">
-                    <Settings className="h-5 w-5" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem onClick={() => setIsEditOpen(true)}>
-                    <Edit2 className="mr-2 h-4 w-4" />
-                    Edit Board Title
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={() => setIsDeleteOpen(true)}>
-                    <Trash2 className="mr-2 h-4 w-4 text-destructive" />
-                    <span className="text-destructive">Delete Board</span>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            )}
-          </div>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <Button onClick={() => setIsMembersOpen(true)} variant="ghost" size="sm" className="glass-card border-none px-4">
+            <Users className="mr-2 h-4 w-4" />
+            {board.members.length} Member
+          </Button>
+          <Button onClick={() => setIsInviteOpen(true)} size="sm" className="btn-gradient">
+            <UserPlus className="mr-2 h-4 w-4" />
+            Invite
+          </Button>
+
+          {isOwner && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="glass-card border-none h-10 w-10 p-0 flex items-center justify-center">
+                  <Settings className="h-5 w-5" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="glass-card border border-white/10 right-0">
+                <DropdownMenuItem onClick={() => setIsEditOpen(true)}>
+                  <Edit2 className="mr-2 h-4 w-4" />
+                  Edit Board Title
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => setIsDeleteOpen(true)}>
+                  <Trash2 className="mr-2 h-4 w-4 text-destructive" />
+                  <span className="text-destructive">Delete Board</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
         </div>
       </div>
 

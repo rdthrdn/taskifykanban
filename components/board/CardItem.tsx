@@ -39,7 +39,7 @@ export function CardItem({ card, onClick }: CardItemProps) {
       whileHover={{ scale: 1.02 }}
       className="group"
     >
-      <Card className="p-3 cursor-pointer hover:shadow-md transition-shadow">
+      <Card className="glass-card border-none p-3 cursor-pointer transition-all hover:-translate-y-0.5">
         <div className="flex items-start gap-2">
           <button
             {...attributes}
@@ -50,11 +50,13 @@ export function CardItem({ card, onClick }: CardItemProps) {
             <GripVertical className="h-4 w-4 text-muted-foreground" />
           </button>
           <div className="flex-1" onClick={onClick}>
-            <h4 className="text-sm font-medium mb-2">{card.title}</h4>
+            <h4 className="text-sm font-semibold mb-2 text-white/90">
+              {card.title}
+            </h4>
             {card.labels.length > 0 && (
               <div className="flex flex-wrap gap-1 mb-2">
                 {card.labels.map((label, idx) => (
-                  <Badge key={idx} variant="secondary" className="text-xs">
+                  <Badge key={idx} className="text-xs bg-white/10 border border-white/20 text-white/80">
                     {label}
                   </Badge>
                 ))}

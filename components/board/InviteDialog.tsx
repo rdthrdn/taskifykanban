@@ -6,6 +6,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import type { Board } from '@/lib/types'
+import type { Database } from '@/lib/database.types'
 import { toast } from '@/lib/utils'
 import { useSupabase } from '@/providers/supabase-provider'
 
@@ -38,8 +39,10 @@ export function InviteDialog({ board, open, onOpenChange }: InviteDialogProps) {
 
       // Update members array
       const newMembers = [...board.members, userId]
+      
       const { error } = await supabase
         .from('boards')
+        // @ts-ignore - Supabase type inference issue
         .update({ members: newMembers })
         .eq('id', board.id)
 
@@ -58,9 +61,9 @@ export function InviteDialog({ board, open, onOpenChange }: InviteDialogProps) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent className="glass-card border-none bg-black/70 text-white">
         <DialogHeader>
-          <DialogTitle>Invite Member ke Board</DialogTitle>
+          <DialogTitle className="text-transparent bg-clip-text gradient-text">Invite Member ke Board</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleInvite} className="space-y-4">
           <div>
@@ -73,6 +76,7 @@ export function InviteDialog({ board, open, onOpenChange }: InviteDialogProps) {
               onChange={(e) => setUserId(e.target.value)}
               placeholder="UUID user yang ingin diundang"
               disabled={isLoading}
+              className="bg-white/10 border-white/15 text-white"
             />
             <p className="text-xs text-muted-foreground mt-1">
               Untuk MVP, masukkan UUID user secara manual. Di production, bisa
@@ -88,7 +92,7 @@ export function InviteDialog({ board, open, onOpenChange }: InviteDialogProps) {
             >
               Batal
             </Button>
-            <Button type="submit" disabled={isLoading}>
+            <Button type="submit" disabled={isLoading} className="btn-gradient">
               {isLoading ? 'Menambahkan...' : 'Tambahkan'}
             </Button>
           </div>

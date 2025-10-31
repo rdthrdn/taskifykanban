@@ -38,6 +38,7 @@ async function removeMember(boardId: string, userId: string, members: string[]) 
   
   const { error } = await supabase
     .from('boards')
+    // @ts-ignore - Supabase type inference issue
     .update({ members: newMembers })
     .eq('id', boardId)
 
@@ -76,9 +77,9 @@ export function MembersDialog({ board, open, onOpenChange }: MembersDialogProps)
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent className="glass-card border-none bg-black/70 text-white">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
+          <DialogTitle className="flex items-center gap-2 text-transparent bg-clip-text gradient-text">
             <Users className="h-5 w-5" />
             Members ({board.members.length})
           </DialogTitle>
@@ -97,7 +98,7 @@ export function MembersDialog({ board, open, onOpenChange }: MembersDialogProps)
               return (
                 <div
                   key={profile.id}
-                  className="flex items-center justify-between p-3 rounded-lg border hover:bg-accent transition-colors"
+                  className="flex items-center justify-between p-3 rounded-2xl glass-card border-none hover:-translate-y-0.5 transition-transform"
                 >
                   <div className="flex items-center gap-3">
                     <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
@@ -117,7 +118,7 @@ export function MembersDialog({ board, open, onOpenChange }: MembersDialogProps)
                   </div>
                   <div className="flex items-center gap-2">
                     {isBoardOwner && (
-                      <Badge variant="secondary" className="flex items-center gap-1">
+                      <Badge variant="secondary" className="flex items-center gap-1 bg-white/10 border-white/25 text-white">
                         <Crown className="h-3 w-3" />
                         Owner
                       </Badge>

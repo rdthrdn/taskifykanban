@@ -28,18 +28,29 @@ const DialogContext = React.createContext<{
 
 const DialogTrigger = React.forwardRef<
   HTMLButtonElement,
-  React.ButtonHTMLAttributes<HTMLButtonElement>
->(({ onClick, ...props }, ref) => {
+  React.ButtonHTMLAttributes<HTMLButtonElement> & { asChild?: boolean }
+>(({ onClick, asChild, children, ...props }, ref) => {
   const { onOpenChange } = React.useContext(DialogContext)
+
+  const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    onClick?.(e)
+    onOpenChange?.(true)
+  }
+
+  if (asChild && React.isValidElement(children)) {
+    return React.cloneElement(children as React.ReactElement<any>, {
+      onClick: (e: React.MouseEvent<HTMLButtonElement>) => {
+        children.props?.onClick?.(e)
+        handleClick(e)
+      },
+      ref,
+    })
+  }
+
   return (
-    <button
-      ref={ref}
-      onClick={(e) => {
-        onClick?.(e)
-        onOpenChange?.(true)
-      }}
-      {...props}
-    />
+    <button ref={ref} onClick={handleClick} {...props}>
+      {children}
+    </button>
   )
 })
 DialogTrigger.displayName = 'DialogTrigger'
