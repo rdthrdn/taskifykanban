@@ -3,7 +3,7 @@
 import * as React from 'react'
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
-import { GripVertical, Calendar } from 'lucide-react'
+import { GripVertical, Calendar, Users } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -60,14 +60,34 @@ export function CardItem({ card, onClick }: CardItemProps) {
                 ))}
               </div>
             )}
-            {card.due_date && (
-              <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                <Calendar className="h-3 w-3" />
-                <span>
-                  {new Date(card.due_date).toLocaleDateString('id-ID')}
-                </span>
-              </div>
-            )}
+            <div className="flex items-center justify-between mt-2">
+              {card.due_date && (
+                <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                  <Calendar className="h-3 w-3" />
+                  <span>
+                    {new Date(card.due_date).toLocaleDateString('id-ID')}
+                  </span>
+                </div>
+              )}
+              {card.assignees && card.assignees.length > 0 && (
+                <div className="flex items-center -space-x-2">
+                  {card.assignees.slice(0, 3).map((_, idx) => (
+                    <div
+                      key={idx}
+                      className="h-6 w-6 rounded-full bg-primary/10 border-2 border-background flex items-center justify-center"
+                      title={`Assignee ${idx + 1}`}
+                    >
+                      <Users className="h-3 w-3 text-primary" />
+                    </div>
+                  ))}
+                  {card.assignees.length > 3 && (
+                    <div className="h-6 w-6 rounded-full bg-muted border-2 border-background flex items-center justify-center text-[10px] font-medium">
+                      +{card.assignees.length - 3}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </Card>

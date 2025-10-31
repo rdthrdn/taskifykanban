@@ -1,6 +1,7 @@
 'use client'
 
 import * as React from 'react'
+import { createPortal } from 'react-dom'
 import { X } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -51,8 +52,10 @@ const DialogContent = React.forwardRef<
 
   if (!open) return null
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
+  // Portal ke body untuk menghindari stacking context/overflow ancestor
+  const portalTarget = typeof document !== 'undefined' ? document.body : null
+  const node = (
+    <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4">
       {/* Backdrop */}
       <div
         className="fixed inset-0 bg-black/50"
@@ -62,7 +65,7 @@ const DialogContent = React.forwardRef<
       <div
         ref={ref}
         className={cn(
-          'relative z-50 w-full max-w-lg rounded-lg border bg-background p-6 shadow-lg',
+          'relative z-[1001] w-full max-w-lg rounded-lg border bg-background p-6 shadow-lg max-h-[90vh] overflow-y-auto',
           className
         )}
         {...props}
@@ -78,6 +81,8 @@ const DialogContent = React.forwardRef<
       </div>
     </div>
   )
+
+  return portalTarget ? createPortal(node, portalTarget) : node
 })
 DialogContent.displayName = 'DialogContent'
 

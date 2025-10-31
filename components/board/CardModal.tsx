@@ -5,8 +5,9 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { X, Calendar, Tag, User, MessageSquare } from 'lucide-react'
+import { X, Calendar, Tag, User, MessageSquare, Trash2 } from 'lucide-react'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Button } from '@/components/ui/button'
@@ -27,6 +28,7 @@ const cardSchema = z.object({
   description: z.string(),
   labels: z.string(), // comma-separated
   due_date: z.string().nullable(),
+  assignees: z.string(), // comma-separated user IDs
 })
 
 type CardFormData = z.infer<typeof cardSchema>
@@ -71,11 +73,23 @@ async function addComment(cardId: string, body: string) {
   return res.json()
 }
 
+async function deleteCard(cardId: string) {
+  const res = await fetch(`/api/cards/${cardId}`, {
+    method: 'DELETE',
+  })
+  if (!res.ok) {
+    const err = await res.json()
+    throw new Error(err.error || 'Gagal delete card')
+  }
+  return res.json()
+}
+
 export function CardModal({ card, boardId, open, onOpenChange }: CardModalProps) {
   const queryClient = useQueryClient()
   const { supabase } = useSupabase()
   const [commentBody, setCommentBody] = React.useState('')
   const [currentUser, setCurrentUser] = React.useState<any>(null)
+  const [isDeleteOpen, setIsDeleteOpen] = React.useState(false)
 
   React.useEffect(() => {
     supabase.auth.getUser().then(({ data }) => setCurrentUser(data.user))
@@ -103,6 +117,7 @@ export function CardModal({ card, boardId, open, onOpenChange }: CardModalProps)
         description: card.description || '',
         labels: card.labels.join(', '),
         due_date: card.due_date || '',
+        assignees: card.assignees?.join(', ') || '',
       })
     }
   }, [card, reset])
@@ -131,17 +146,35 @@ export function CardModal({ card, boardId, open, onOpenChange }: CardModalProps)
     },
   })
 
+  const deleteMutation = useMutation({
+    mutationFn: deleteCard,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['board', boardId] })
+      toast.success('Card berhasil dihapus!')
+      onOpenChange(false)
+    },
+    onError: (error: Error) => {
+      toast.error(error.message)
+    },
+  })
+
   const onSubmit = (data: CardFormData) => {
     const labels = data.labels
       .split(',')
       .map((l) => l.trim())
       .filter((l) => l)
 
+    const assignees = data.assignees
+      .split(',')
+      .map((a) => a.trim())
+      .filter((a) => a)
+
     updateMutation.mutate({
       title: data.title,
       description: data.description,
       labels,
       due_date: data.due_date || null,
+      assignees,
     })
   }
 
@@ -214,9 +247,36 @@ export function CardModal({ card, boardId, open, onOpenChange }: CardModalProps)
             />
           </div>
 
-          <Button type="submit" disabled={updateMutation.isPending} className="w-full">
-            {updateMutation.isPending ? 'Menyimpan...' : 'Simpan Perubahan'}
-          </Button>
+          <div className="space-y-2">
+            <label htmlFor="assignees" className="text-sm font-medium flex items-center gap-2">
+              <User className="h-4 w-4" />
+              Assignees (pisahkan dengan koma, user IDs)
+            </label>
+            <Input
+              id="assignees"
+              {...register('assignees')}
+              placeholder="user-id-1, user-id-2"
+              disabled={updateMutation.isPending}
+            />
+            <p className="text-xs text-muted-foreground">
+              Untuk MVP, masukkan user IDs. Di production bisa diganti dengan select dropdown members.
+            </p>
+          </div>
+
+          <div className="flex gap-2">
+            <Button type="submit" disabled={updateMutation.isPending} className="flex-1">
+              {updateMutation.isPending ? 'Menyimpan...' : 'Simpan Perubahan'}
+            </Button>
+            <Button
+              type="button"
+              variant="destructive"
+              onClick={() => setIsDeleteOpen(true)}
+              disabled={updateMutation.isPending}
+            >
+              <Trash2 className="h-4 w-4 mr-2" />
+              Hapus
+            </Button>
+          </div>
         </form>
 
         {/* Comments Section */}
@@ -266,6 +326,33 @@ export function CardModal({ card, boardId, open, onOpenChange }: CardModalProps)
           </div>
         </div>
       </SheetContent>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Hapus Card?</DialogTitle>
+            <DialogDescription>
+              Card <strong>{card.title}</strong> akan dihapus permanen. Aksi ini tidak bisa dibatalkan.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsDeleteOpen(false)}>
+              Batal
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={() => {
+                deleteMutation.mutate(card.id)
+                setIsDeleteOpen(false)
+              }}
+              disabled={deleteMutation.isPending}
+            >
+              {deleteMutation.isPending ? 'Menghapus...' : 'Hapus Card'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Sheet>
   )
 }

@@ -3,11 +3,13 @@
 import * as React from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useRouter } from 'next/navigation'
-import { Plus } from 'lucide-react'
+import { Plus, User, LogOut } from 'lucide-react'
 import { Card, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator } from '@/components/ui/dropdown-menu'
 import { Input } from '@/components/ui/input'
+import { useSupabase } from '@/providers/supabase-provider'
 import type { Board } from '@/lib/types'
 import { toast } from '@/lib/utils'
 
@@ -35,8 +37,14 @@ async function createBoard(title: string): Promise<Board> {
 export function BoardList() {
   const router = useRouter()
   const queryClient = useQueryClient()
+  const { supabase } = useSupabase()
   const [isDialogOpen, setIsDialogOpen] = React.useState(false)
   const [newBoardTitle, setNewBoardTitle] = React.useState('')
+  const [currentUser, setCurrentUser] = React.useState<any>(null)
+
+  React.useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => setCurrentUser(data.user))
+  }, [supabase])
 
   const { data: boards, isLoading } = useQuery({
     queryKey: ['boards'],
@@ -66,6 +74,13 @@ export function BoardList() {
     createMutation.mutate(newBoardTitle)
   }
 
+  const handleLogout = async () => {
+    await supabase.auth.signOut()
+    toast.success('Logout berhasil!')
+    router.push('/login')
+    router.refresh()
+  }
+
   if (isLoading) {
     return (
       <div className="flex h-screen items-center justify-center">
@@ -83,13 +98,14 @@ export function BoardList() {
             Kelola proyek Anda dengan Kanban boards
           </p>
         </div>
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogTrigger asChild>
-            <Button>
-              <Plus className="mr-2 h-4 w-4" />
-              Buat Board
-            </Button>
-          </DialogTrigger>
+        <div className="flex items-center gap-2">
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+            <DialogTrigger asChild>
+              <Button>
+                <Plus className="mr-2 h-4 w-4" />
+                Buat Board
+              </Button>
+            </DialogTrigger>
           <DialogContent>
             <DialogHeader>
               <DialogTitle>Buat Board Baru</DialogTitle>
@@ -124,6 +140,29 @@ export function BoardList() {
             </form>
           </DialogContent>
         </Dialog>
+
+        {/* User Menu */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="icon" className="rounded-full">
+              <User className="h-5 w-5" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <div className="px-4 py-2 text-sm">
+              <p className="font-medium">{currentUser?.email}</p>
+              <p className="text-xs text-muted-foreground mt-1">
+                Taskify Kanban
+              </p>
+            </div>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={handleLogout}>
+              <LogOut className="mr-2 h-4 w-4" />
+              Logout
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+        </div>
       </div>
 
       {!boards || boards.length === 0 ? (

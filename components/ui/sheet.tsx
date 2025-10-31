@@ -62,7 +62,7 @@ const SheetContent = React.forwardRef<
       <div
         ref={ref}
         className={cn(
-          'fixed right-0 top-0 h-full w-full max-w-md border-l bg-background p-6 shadow-lg',
+          'fixed right-0 top-0 h-full w-full max-w-md border-l bg-background p-6 shadow-lg overflow-y-auto',
           className
         )}
         {...props}
@@ -70,7 +70,7 @@ const SheetContent = React.forwardRef<
         {children}
         <button
           onClick={() => onOpenChange?.(false)}
-          className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+          className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 z-10"
         >
           <X className="h-4 w-4" />
           <span className="sr-only">Close</span>

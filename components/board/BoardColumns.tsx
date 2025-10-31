@@ -2,7 +2,7 @@
 
 import * as React from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { Plus } from 'lucide-react'
+import { Plus, Search, X, Filter } from 'lucide-react'
 import type { DragEndEvent, DragStartEvent } from '@dnd-kit/core'
 import { DndProvider } from '@/components/dnd/DndProvider'
 import { DragOverlayCard } from '@/components/dnd/DragOverlayCard'
@@ -10,6 +10,7 @@ import { Column } from './Column'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
 import type { Column as ColumnType, Card as CardType } from '@/lib/types'
 import { calcOrder } from '@/lib/ordering'
 import { toast } from '@/lib/utils'
@@ -59,6 +60,37 @@ export function BoardColumns({
   const [activeCard, setActiveCard] = React.useState<CardType | null>(null)
   const [isAddingColumn, setIsAddingColumn] = React.useState(false)
   const [newColumnTitle, setNewColumnTitle] = React.useState('')
+  const [searchQuery, setSearchQuery] = React.useState('')
+  const [selectedLabels, setSelectedLabels] = React.useState<string[]>([])
+
+  // Get all unique labels from cards
+  const allLabels = React.useMemo(() => {
+    const labelSet = new Set<string>()
+    cards.forEach((card) => card.labels.forEach((label) => labelSet.add(label)))
+    return Array.from(labelSet)
+  }, [cards])
+
+  // Filter cards based on search and labels
+  const filteredCards = React.useMemo(() => {
+    return cards.filter((card) => {
+      const matchesSearch =
+        !searchQuery ||
+        card.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        card.description.toLowerCase().includes(searchQuery.toLowerCase())
+
+      const matchesLabels =
+        selectedLabels.length === 0 ||
+        selectedLabels.some((label) => card.labels.includes(label))
+
+      return matchesSearch && matchesLabels
+    })
+  }, [cards, searchQuery, selectedLabels])
+
+  const toggleLabel = (label: string) => {
+    setSelectedLabels((prev) =>
+      prev.includes(label) ? prev.filter((l) => l !== label) : [...prev, label]
+    )
+  }
 
   const createColumnMutation = useMutation({
     mutationFn: ({ boardId, title }: { boardId: string; title: string }) =>
@@ -106,7 +138,7 @@ export function BoardColumns({
   })
 
   const handleDragStart = (event: DragStartEvent) => {
-    const card = cards.find((c) => c.id === event.active.id)
+    const card = filteredCards.find((c) => c.id === event.active.id)
     if (card) setActiveCard(card)
   }
 
@@ -119,7 +151,7 @@ export function BoardColumns({
     const activeCardId = active.id as string
     const overColumnId = over.id as string
 
-    const activeCard = cards.find((c) => c.id === activeCardId)
+    const activeCard = filteredCards.find((c) => c.id === activeCardId)
     if (!activeCard) return
 
     // Cek apakah over adalah column atau card
@@ -132,7 +164,7 @@ export function BoardColumns({
     if (targetColumn) {
       // Drop ke column (akhir list)
       toColumnId = targetColumn.id
-      const cardsInColumn = cards.filter((c) => c.column_id === toColumnId)
+      const cardsInColumn = filteredCards.filter((c) => c.column_id === toColumnId)
       const maxOrder =
         cardsInColumn.length > 0
           ? Math.max(...cardsInColumn.map((c) => c.order))
@@ -141,7 +173,7 @@ export function BoardColumns({
     } else if (targetCard) {
       // Drop ke card (insert sebelum card target)
       toColumnId = targetCard.column_id
-      const cardsInColumn = cards
+      const cardsInColumn = filteredCards
         .filter((c) => c.column_id === toColumnId)
         .sort((a, b) => a.order - b.order)
       const targetIndex = cardsInColumn.findIndex((c) => c.id === targetCard.id)
@@ -167,26 +199,95 @@ export function BoardColumns({
   }
 
   return (
-    <DndProvider
-      onDragStart={handleDragStart}
-      onDragEnd={handleDragEnd}
-      overlay={activeCard ? <DragOverlayCard card={activeCard} /> : null}
-    >
-      <div className="flex gap-4 overflow-x-auto p-6">
-        {columns.map((column) => {
-          const columnCards = cards
-            .filter((c) => c.column_id === column.id)
-            .sort((a, b) => a.order - b.order)
-          return (
-            <Column
-              key={column.id}
-              column={column}
-              cards={columnCards}
-              boardId={boardId}
-              onCardClick={onCardClick}
-            />
-          )
-        })}
+    <>
+      {/* Search & Filter Bar */}
+      <div className="px-6 py-4 border-b bg-muted/30">
+        <div className="flex flex-col gap-3">
+          <div className="flex gap-2">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Cari cards..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-9"
+              />
+              {searchQuery && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7"
+                  onClick={() => setSearchQuery('')}
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              )}
+            </div>
+            {allLabels.length > 0 && (
+              <Button variant="outline" size="icon">
+                <Filter className="h-4 w-4" />
+              </Button>
+            )}
+          </div>
+
+          {/* Label Filters */}
+          {allLabels.length > 0 && (
+            <div className="flex flex-wrap gap-2">
+              {allLabels.map((label) => (
+                <Badge
+                  key={label}
+                  variant={selectedLabels.includes(label) ? 'default' : 'outline'}
+                  className="cursor-pointer"
+                  onClick={() => toggleLabel(label)}
+                >
+                  {label}
+                  {selectedLabels.includes(label) && (
+                    <X className="ml-1 h-3 w-3" />
+                  )}
+                </Badge>
+              ))}
+              {selectedLabels.length > 0 && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setSelectedLabels([])}
+                  className="h-6"
+                >
+                  Clear filters
+                </Button>
+              )}
+            </div>
+          )}
+
+          {/* Results count */}
+          {(searchQuery || selectedLabels.length > 0) && (
+            <p className="text-xs text-muted-foreground">
+              Menampilkan {filteredCards.length} dari {cards.length} cards
+            </p>
+          )}
+        </div>
+      </div>
+
+      <DndProvider
+        onDragStart={handleDragStart}
+        onDragEnd={handleDragEnd}
+        overlay={activeCard ? <DragOverlayCard card={activeCard} /> : null}
+      >
+        <div className="flex gap-4 overflow-x-auto p-6">
+          {columns.map((column) => {
+            const columnCards = filteredCards
+              .filter((c) => c.column_id === column.id)
+              .sort((a, b) => a.order - b.order)
+            return (
+              <Column
+                key={column.id}
+                column={column}
+                cards={columnCards}
+                boardId={boardId}
+                onCardClick={onCardClick}
+              />
+            )
+          })}
 
         {/* Add Column */}
         <Card className="min-w-[320px] max-w-[320px] p-4">
@@ -232,8 +333,9 @@ export function BoardColumns({
             </Button>
           )}
         </Card>
-      </div>
-    </DndProvider>
+        </div>
+      </DndProvider>
+    </>
   )
 }
 

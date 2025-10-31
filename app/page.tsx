@@ -1,6 +1,15 @@
-import { redirect } from 'next/navigation'
+import { Navbar } from '@/components/marketing/Navbar'
+import { Hero } from '@/components/marketing/Hero'
+import { RouteTransition } from '@/components/RouteTransition'
 
 export default function Home() {
-  redirect('/boards')
+  return (
+    <main>
+      <Navbar />
+      <RouteTransition>
+        <Hero />
+      </RouteTransition>
+    </main>
+  )
 }
 

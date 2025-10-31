@@ -1,10 +1,10 @@
-git remote add origin https://github.com/rdthrdn/taskifykanban.git# Taskify Kanban
+# Taskify Kanban
 
 Aplikasi Kanban board modern dengan real-time collaboration menggunakan Next.js, TypeScript, Tailwind CSS, dan Supabase.
 
 ## ✨ Fitur
 
-- 🔐 **Autentikasi OTP** - Login dengan email menggunakan Supabase Magic Link
+- 🔐 **Autentikasi Email/Password** - Register dan login dengan email + password, verifikasi OTP code 6 digit
 - 📋 **Kanban Board** - Buat dan kelola multiple boards
 - 📝 **Columns & Cards** - CRUD lengkap untuk columns dan cards
 - 🎯 **Drag & Drop** - Smooth drag-and-drop dengan dnd-kit
@@ -264,7 +264,11 @@ create trigger on_auth_user_created
   for each row execute procedure public.handle_new_user();
 ```
 
-3. Di Supabase Dashboard, aktifkan Email Auth di Authentication > Providers
+3. Di Supabase Dashboard, aktifkan Email Auth:
+   - Ke menu **Authentication** > **Providers**
+   - Pastikan **Email** provider **ENABLED**
+   - Set **Confirm email** ke **enabled** (untuk OTP verification)
+   - **SAVE**
 
 ### 4. Environment Variables
 

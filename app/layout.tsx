@@ -3,6 +3,7 @@ import { Inter } from 'next/font/google'
 import '@/styles/globals.css'
 import { QueryProvider } from '@/providers/query-provider'
 import { SupabaseProvider } from '@/providers/supabase-provider'
+// RouteTransition is applied per-page to exclude Navbar from blur
 
 const inter = Inter({ subsets: ['latin'] })
 
