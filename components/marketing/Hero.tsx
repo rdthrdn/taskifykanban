@@ -65,7 +65,7 @@ export function Hero() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.2 }}
             >
-              Tunjukkan kemampuan UI/UX dan engineering Anda dengan board Kanban realtime, drag-and-drop halus, dan kolaborasi modern.
+              Board Kanban realtime, drag-and-drop halus, dan kolaborasi modern.
             </motion.p>
             <motion.div
               className="mt-8 flex flex-wrap gap-3"
